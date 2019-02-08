@@ -20,15 +20,15 @@ class Commands( object ):
                 
                 if file.endswith(".py"):
                     file = file.split( '.' )[0]
-                    print( "importing {}".format( file ) )
-                    print( importlib.import_module( file, "GWSS" ) )
+                    # print( "importing {}".format( file ) )
+                    # print( importlib.import_module( file, "GWSS" ) )
                     core_module = importlib.import_module( file )
                     instantiated = getattr( core_module, file.title() )( logger= self.log )
                     self.modules.append( { 'module_location': full_path, 'module': instantiated, 'module_name': file } )
                     self.modules_by_name[file] = { 'module_location': full_path, 'module': instantiated, 'module_name': file }
                     
-            print( self.modules )
-            print( self.modules_by_name )
+            # print( self.modules )
+            # print( self.modules_by_name )
 
         def run( self, function, payload ):
             func = None
