@@ -8,7 +8,8 @@ import pprint
 import logging.handlers
 import json
 import syslog
-import flask
+# import flask
+from flask import Flask, request, render_template, send_from_directory
 import flask_socketio
 import datetime
 import traceback
@@ -19,8 +20,9 @@ config = local_settings.env
 import gwsslib
 import gwsslib.stuff
 
-app = flask.Flask( config.get( 'APPLICATION_NAME', 'gwss' ) )
+app = Flask( config.get( 'APPLICATION_NAME', 'gwss' ) )
 app.secret_key = config.get( 'SESSION_KEY' )
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 log = logging.getLogger( app.logger.name )
 log.setLevel( logging.DEBUG )
@@ -137,14 +139,18 @@ def error_handler(e):
 
 @socketio.on( 'connect' )
 def connect():
-    app.logger.debug( 'websocket connection from %s' % flask.request.sid )
+    app.logger.debug( 'websocket connection from %s' % request.sid )
     # flask_socketio.emit( 'gwss_response', { 'success': True, 'id': flask.request.sid, 'response': 'connection' } )
 
 @socketio.on( 'disconnect' )
 # @flask_login.login_required
 def disconnect():
-    app.logger.debug( "socket %s disconnected" % flask.request.sid )
+    app.logger.debug( "socket %s disconnected" % request.sid )
 
+# @socketio.on( 'json' )
+# def json( payload ):
+#     app.logger.debug( "on.json({})".format( pprint.pformat( payload ) ) )
+    
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 """
 {
@@ -158,15 +164,20 @@ def disconnect():
     
 }
 """
-@socketio.on( 'gwss_request' )
-def gwss_request( payload ):
+@socketio.on( 'message' )
+def message( *args ):
+    app.logger.debug( "on.message({})".format( pprint.pformat( args ) ) )
+
+    request, payload = args
     app.logger.debug( pprint.pformat( payload ) )
     function_name = payload.get( 'request', 'missing_command' )
     response = { }
 
-    response.update( __commands.run( function = function_name, payload = payload ) )
-    flask_socketio.emit( response['endpoint'], response )
-
+    response.update( __commands.run( function = function_name, payload = payload['data'] ) )
+    reply_to = payload.get( 'return_route', 'general' )
+    app.logger.debug( "emit( {}, {} )".format( reply_to, response ) )
+    flask_socketio.emit( reply_to, response )
+    return { 'ff': 100, 'd': True }
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # HTTP routines
@@ -180,10 +191,10 @@ def internal_500_error( exception ):
 @app.errorhandler( 404 )
 def internal_404_error( exception ):
     app.logger.debug( '-' * 40 )
-    app.logger.warn( flask.request.url )
+    app.logger.warn( request.url )
     app.logger.warn( exception )
     app.logger.debug( '-' * 40 )
-    return 'dashboard\n%s\n%s' % ( pprint.pformat( exception ), flask.request.url ), 404, { 'Content-Type': 'text/plain' }
+    return 'dashboard\n%s\n%s' % ( pprint.pformat( exception ), request.url ), 404, { 'Content-Type': 'text/plain' }
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # PAGE MAPPED ROUTES
@@ -197,7 +208,19 @@ def expired():
         app.logger.debug( "user session expired %s" % user.username )
         user.logout()
     # return the "expired" page
-    return flask.render_template( 'expired.html' )
+    return render_template( 'expired.html' )
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# STATIC ROUTES
+@app.route('/static/<directory>/<file_name>.<file_type>', methods=['GET'])
+def static_file( directory, file_name, file_type):
+
+    app.logger.debug( "sending static file: [%s] %s.%s" % ( directory, file_name, file_type ) )
+    return send_from_directory(
+        config['STATIC_FOLDER'] + "/" + directory,
+        "%s.%s" % ( file_name, file_type )
+    ), { 'Content-Type': config['MIME_MAPPING'].get( file_type, 'application/octet-stream' ) }
+
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 @app.route('/logout', methods=['GET'])
@@ -221,10 +244,9 @@ def home():
     #     if user.valid:
     #         app.logger.debug( "user %s logged in successfully" % user.username )
     #         return flask.redirect( url_for( 'home' ) )
-    flask_socketio.emit( "general_response", { 'bubble': True, 'bobble': 'envelope' } )
-    print( flask.request.data )
-    return ""
-    # return flask.render_template( 'logon.html' )
+    # print( request.data )
+    return render_template( "index.html" )
+
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if __name__ == '__main__':
