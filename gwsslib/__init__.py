@@ -26,9 +26,26 @@ class Commands( object ):
                     instantiated = getattr( core_module, file.title() )( logger= self.log )
                     self.modules.append( { 'module_location': full_path, 'module': instantiated, 'module_name': file } )
                     self.modules_by_name[file] = { 'module_location': full_path, 'module': instantiated, 'module_name': file }
-                    
-            # print( self.modules )
-            # print( self.modules_by_name )
+
+            for f in self.functions_list():
+                self.log.debug( f )
+
+        """
+          Format the various functions into a string so they can be dumped out nicely if necessary.
+        """
+        def functions_list( self ):
+            a = []
+            for m in self.modules_by_name:
+                s = "{}: ".format( m )
+                cs = []
+
+                for c in dir( self.modules_by_name[m]['module'] ):
+                    if c[:2] == "__": continue
+                    if c == 'log': continue
+                    cs.append( c )
+                s += ', '.join( cs )
+                a.append( s )
+            return a
 
         def run( self, function, payload ):
             func = None
@@ -36,7 +53,7 @@ class Commands( object ):
 
             if '.' in function:
                 module, subfunction = function.split( '.' )
-                endpoint = "{}_{}".format( module, subfunction )
+                endpoint = subfunction
                 func = self._module_by_name( module, subfunction, payload )
 
             if not func:
