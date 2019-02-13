@@ -27,6 +27,14 @@ env = {
     'REDIS_HOST': 'localhost',
     'REDIS_PORT': 6379,
     'REDIS_DB': 3,
+
+    # Misc
+    'MIME_MAPPING': {
+        'js': 'text/javascript',
+        'html': 'text/html',
+        'css': 'text/css',
+    },
+    'STATIC_FOLDER': os.path.dirname( os.path.realpath( __file__ ) ) + "/static/",
 }
 
 if env['ENABLE_CELERY']:
