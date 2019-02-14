@@ -3,21 +3,21 @@ window.websocketObjectWrapper = window.websocketObjectWrapper || function( ) {
 
     this.socket = undefined ;
     this.debug = true ;
-    this.target = '//' + document.domain + ':443' ;
+    this.target = undefined ;
 
-    this.connect = function( target, connect=function(){}, disconnect=function(){} ) {
+    this.connect = function( target='//' + document.domain + ':443', connect=function(){}, disconnect=function(){} ) {
 
-	if ( this.host ) {
-	    if ( this.host != target ) {
-		if ( this.debug ) console.warn( "** socket already connected to "+ this.host +", can't now connect to "+ target +" **" ) ;
+	if ( this.target ) {
+	    if ( this.target != target ) {
+		if ( this.debug ) console.warn( "** socket already connected to "+ this.target +", can't now connect to "+ target +" **" ) ;
 	    } else {
-		if ( this.debug ) console.debug( "** socket already connected to "+ this.host +", using that connection **" ) ;
+		if ( this.debug ) console.debug( "** socket already connected to "+ this.target +", using that connection **" ) ;
 	    }
 	} else {
+	    this.target = target
 	    this.socket =  io.connect( this.target ) ;
 	    this.socket.on( 'connect', connect ) ;
 	    this.socket.on( 'disconnect', disconnect ) ;
-	    this.socket.on( 'message', function( data ) { console.log( data ) } ) ;
 	}
     }
 
@@ -34,10 +34,6 @@ window.websocketObjectWrapper = window.websocketObjectWrapper || function( ) {
 	data.return_route = name ;
 	console.log( data ) ;
 	this.socket.send( name, data ) ;
-    } ;
-
-    this.deregister = function( ) {
-	// this.socket.deregisterAll( this.element ) ;
     } ;
 
     return this ;
