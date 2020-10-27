@@ -7,7 +7,7 @@ cffi==1.11.5
 chardet==3.0.4
 Click==7.0
 coloredlogs==10.0
-cryptography==2.4.2
+cryptography==3.2
 docopt==0.6.2
 Flask==1.0.2
 Flask-SocketIO==3.1.2
