@@ -27,7 +27,9 @@ env = {
     'REDIS_HOST': 'localhost',
     'REDIS_PORT': 6379,
     'REDIS_DB': 3,
-
+    # Websocket Server
+    'SOCKETIO_CORS_ALLOWED_ORIGINS': 'https://dev.textmy.com',
+    'SOCKETIO_ENGINEIO_LOGGER': False,
     # Misc
     'MIME_MAPPING': {
         'js': 'text/javascript',

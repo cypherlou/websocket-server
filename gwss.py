@@ -8,7 +8,6 @@ import pprint
 import logging.handlers
 import json
 import syslog
-# import flask
 from flask import Flask, request, render_template, send_from_directory
 import flask_socketio
 import datetime
@@ -27,10 +26,6 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 log = logging.getLogger( app.logger.name )
 log.setLevel( logging.DEBUG )
 handler = logging.handlers.SysLogHandler( address='/dev/log', facility=logging.handlers.SysLogHandler.LOG_USER )
-handler.setFormatter( logging.Formatter( config['LOG_FORMAT'] ) )
-handler.setLevel( logging.DEBUG )
-app.logger.addHandler( handler )
-handler = logging.StreamHandler( )
 handler.setFormatter( logging.Formatter( config['LOG_FORMAT'] ) )
 handler.setLevel( logging.DEBUG )
 app.logger.addHandler( handler )
@@ -72,7 +67,21 @@ if config.get( 'ENABLE_CELERY'):
     app.logger.debug( "Celery client enabled" )
 
 # SocketIO Wrapper
-socketio = flask_socketio.SocketIO(app, message_queue='redis://{}:{}'.format( config['REDIS_HOST'], config['REDIS_PORT'] ) )
+caos = config.get( 'SOCKETIO_CORS_ALLOWED_ORIGINS', '' ).replace( ' ', '' )
+caos = caos.split( ',' )
+for cao in caos:
+    app.logger.info( "adding {} to cors_allowed_origins".format( cao ) )
+
+socketio = flask_socketio.SocketIO(
+    app,
+    manage_session = False,
+    # Uncomment to get the engineio to log. Only for 'proper' debugging!
+    # engineio_logger=app.logger,
+    async_mode='gevent',
+    cors_allowed_origins=caos,
+    logger=app.logger,
+)
+
 
 # Logging
 log_format = logging.Formatter( config['LOG_FORMAT'] )
@@ -188,6 +197,7 @@ def internal_500_error( exception ):
      app.logger.exception( exception )
      return pprint.pformat( exception ), 500, { 'Content-Type': 'text/plain' }
 
+
 @app.errorhandler( 404 )
 def internal_404_error( exception ):
     app.logger.debug( '-' * 40 )
@@ -195,6 +205,7 @@ def internal_404_error( exception ):
     app.logger.warn( exception )
     app.logger.debug( '-' * 40 )
     return 'dashboard\n%s\n%s' % ( pprint.pformat( exception ), request.url ), 404, { 'Content-Type': 'text/plain' }
+
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # PAGE MAPPED ROUTES
@@ -209,6 +220,7 @@ def expired():
         user.logout()
     # return the "expired" page
     return render_template( 'expired.html' )
+
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # STATIC ROUTES
@@ -235,25 +247,8 @@ def logout():
 
     return flask.redirect( '/' )
 
+
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 @app.route('/', methods=['GET'])
 def home():
-
-    # user = valid_session()
-    # if user:
-    #     if user.valid:
-    #         app.logger.debug( "user %s logged in successfully" % user.username )
-    #         return flask.redirect( url_for( 'home' ) )
-    # print( request.data )
     return render_template( "index.html" )
-
-
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-if __name__ == '__main__':
-    pass
-
-else:
-    
-    # start the websocket interface
-    app.logger.debug( "dashboard websocket process starting" )
-
