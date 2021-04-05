@@ -9,4 +9,7 @@ Install libraries.
 `pip install -r requirements.txt`
 
 ## Run the server
-`gunicorn -k geventwebsocket.gunicorn.workers.GeventWebSocketWorker -w 1 -b 0.0.0.0:8000 gwss:app --keep-alive 2 --timeout 100 --pid dev_test.pid --daemon`
+```
+gunicorn -k geventwebsocket.gunicorn.workers.GeventWebSocketWorker -w 1 -b 0.0.0.0:8000 \
+    hyphabit_api:app --keep-alive 2 --timeout 100 --pid hyphabit_api.pid --reload --daemon
+```

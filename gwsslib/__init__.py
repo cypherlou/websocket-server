@@ -20,8 +20,6 @@ class Commands( object ):
                 
                 if file.endswith(".py"):
                     file = file.split( '.' )[0]
-                    # print( "importing {}".format( file ) )
-                    # print( importlib.import_module( file, "GWSS" ) )
                     core_module = importlib.import_module( file )
                     instantiated = getattr( core_module, file.title() )( logger= self.log )
                     self.modules.append( { 'module_location': full_path, 'module': instantiated, 'module_name': file } )

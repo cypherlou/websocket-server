@@ -1,6 +1,6 @@
 "use strict" ;
-import {LitElement, html} from 'https://unpkg.com/lit-element@2.0.0-rc.5?module' ;
-    
+import {LitElement, html} from 'https://unpkg.com/lit-element@2.4.0?module' ;
+
 class WebSocket extends LitElement {
     // make sure to add websocketConnected as a property, otherwise LitElement won't trigger
     // a render when the property is set
@@ -40,11 +40,11 @@ class WebSocket extends LitElement {
     
     // Define the HTML of your element
     render() {
-	return html`<div>
+/*	return html`<div>
 	Websocket connected: ${this.websocketConnected}
-	</div>`;
+	</div>`;*/
     }
 
 }
 // Register your element
-customElements.define('dj-websocket', WebSocket);
+customElements.define('hyphabit-websocket', WebSocket);
