@@ -56,9 +56,13 @@ class Gsa(gwsslib.GwssObject):
 
         countries = [k['country'] for k in response['networks'] if k.get('country')]
         countries = len(set(countries))
-        self.log.debug(f"producing colour range for {countries} colours" )
-        start = Color('#4fb3bf')
-        colours = list(start.range_to(Color('#005662'),countries))
+        start_colour = payload.get( 'start_colour', '#4fb3bf')
+        end_colour = payload.get('end_colour','#005662')
+
+        self.log.debug(f"producing colour range for {countries} colours between {start_colour} and {end_colour}." )
+        start = Color(start_colour)
+        colours = list(start.range_to(Color(end_colour),countries))
+
         country = ''
         for n in response['networks']:
             if country != n['country']:

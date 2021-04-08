@@ -11,6 +11,8 @@ class HyphabitNetworkTerminationList extends LitElement {
 	    debug: { type: Boolean },
 	    country_selector: { type: String, attribute: true },
 	    band_selector: { type: String, attribute: true },
+	    start_colour: { type: String },
+	    end_colour: { type: String },
 	} ;
     }
     
@@ -20,6 +22,7 @@ class HyphabitNetworkTerminationList extends LitElement {
 	this.countries = {}
 	this.country_selector = "All" ;
 	this.band_selector = "All" ;
+	this.generation = "" ;
     }
 
     construct_network_data( source ) {
@@ -70,7 +73,7 @@ ${source.map( item => html`<hyphabit-network-termination
 	    self.construct_network_data( data.data.networks ) ;
 	}
 	this.websocket.register( this.source, processResponse ) ;
-	this.websocket.send( this.source, { object: this.id, request: this.source, data: { generation: this.generation } } ) ;
+	this.websocket.send( this.source, { object: this.id, request: this.source, data: { generation: this.generation, start_colour: this.start_colour, end_colour: this.end_colour } } ) ;
     }
 /*
     attributeChangedCallback(name, oldVal, newVal) {
@@ -375,7 +378,7 @@ class HyphabitNetworkTermination extends LitElement {
       @media only screen and (min-width: 377px) {
 	.container {
 	  padding: 3px ;
-          width: 360px ;
+          width: 300px ;
           height: 180px ;
           border: 1px solid #eee ;
           box-shadow: 0px 2px 3px rgba(0,0,0,0.12), 0px 2px 2px rgba(0,0,0,0.24);
@@ -386,8 +389,6 @@ class HyphabitNetworkTermination extends LitElement {
           float: left ;
           margin: 10px 6px ;
           background-color: #fbfbfb ;
-	  
-	  
 	}
 	.mno {
 	  font-size: 20px ;
@@ -398,6 +399,14 @@ class HyphabitNetworkTermination extends LitElement {
 	  padding: 10px 5px ;
 	}
         .hidden { display: inline-block ; }
+	.band-loz {
+	  font-size: 14px ;
+	}
+        .icon {
+          width: 60px;
+          height: 60px;
+          line-height: 60px;
+	}
       }
       @media only screen and (max-width: 376px) {
       }
