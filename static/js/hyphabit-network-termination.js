@@ -1,5 +1,5 @@
 "use strict" ;
-import {LitElement, html} from 'https://unpkg.com/lit-element@2.4.0?module' ;
+import {LitElement, html, css} from 'https://unpkg.com/lit-element@2.4.0?module' ;
 
 class HyphabitNetworkTerminationList extends LitElement {
     static get properties() {
@@ -27,6 +27,14 @@ class HyphabitNetworkTerminationList extends LitElement {
 	this.end_colour = '#005662';
     }
 
+    static get styles() {
+	return css`
+        :host {
+          min-height: 350px ;
+          line-height: 1.0 ;
+        }`;
+    }
+    
     construct_network_data( source ) {
 	var self = this ;
 	source.forEach( function( e ) {
@@ -103,15 +111,7 @@ ${source.map( item => html`<hyphabit-network-termination
 	} ) ;
     }
     render() {
-	return html`
-      <style>
-        :host {
-          min-height: 350px ;
-          line-height: 1.0 ;
-        }
-    </style>
-    <div class="list-container">${this.serverData}</div>
-`;
+	return html`<div class="list-container">${this.serverData}</div>`;
     }
 
 }
@@ -135,29 +135,11 @@ class HyphabitNetworkFilter extends LitElement {
 	this.options = [] ;
 	this.choice="All";
     }
-
-    connectedCallback() {
-	super.connectedCallback() ;
-	this.options_data = Object.keys(this.options).sort() ;
-    }
-    
-    option_selected( e ) {
-	this.choice = this.options_data[e.srcElement.selectedIndex-1] ;
-	if (this.choice == undefined ) {
-	    this.choice = 'All' ;
-	}
-	var event_data = { index: e.srcElement.selectedIndex, name: this.choice } ;
-	let event = new CustomEvent('changed', { detail: event_data } );
-	this.dispatchEvent(event);
-    }
-    
-
-    render() {
-	return html`
-      <style>
-        :host {
-          line-height: 1.0 ;
-        }
+    static get styles() {
+	return css`
+:host {
+  line-height: 1.0 ;
+}
 .custom-select {
   border-bottom: 1px solid #015b67;
   display: inline-block ;
@@ -184,12 +166,33 @@ select {
     font-size: 17px ;
   }
 }
-    </style>
-    <div class="custom-select">
-<div class="name">${this.name}</div>
-<select @change=${this.option_selected}><option value="_">All</option>
-${this.options_data.map((c) => html`<option value="${c}">${c}</option>`)}
-</select></div>`;
+`;
+    }
+
+    connectedCallback() {
+	super.connectedCallback() ;
+	this.options_data = Object.keys(this.options).sort() ;
+    }
+    
+    option_selected( e ) {
+	this.choice = this.options_data[e.srcElement.selectedIndex-1] ;
+	if (this.choice == undefined ) {
+	    this.choice = 'All' ;
+	}
+	var event_data = { index: e.srcElement.selectedIndex, name: this.choice } ;
+	let event = new CustomEvent('changed', { detail: event_data } );
+	this.dispatchEvent(event);
+    }
+    
+
+    render() {
+	return html`
+<div class="custom-select">
+  <div class="name">${this.name}</div>
+    <select @change=${this.option_selected}><option value="_">All</option>
+      ${this.options_data.map((c) => html`<option value="${c}">${c}</option>`)}
+    </select>
+</div>`;
     }
 
 }
@@ -206,14 +209,8 @@ class HyphabitNetworkTermination extends LitElement {
 	    bands: { type: String },
 	    country: { type: String },
 	    closed: { type: Boolean, value: true },
-	    country_choice: {
-		type: String,
-//		reflect: true, attribute: true
-	    },
-	    band_choice: {
-		type: String,
-//		reflect: true, attribute: true
-	    },
+	    country_choice: { type: String, },
+	    band_choice: { type: String, },
 	} ;
     }
 
@@ -231,43 +228,9 @@ class HyphabitNetworkTermination extends LitElement {
 	this.country_selected = true ;
 	this.band_selected = true ;
     }
-/*
-    attributeChangedCallback(name, oldVal, newVal) {
-	console.log('HyphabitNetworkTermination attribute change: ', name, newVal);
-	super.attributeChangedCallback(name, oldVal, newVal);
-    }
-*/
-    country_changed( country ) {
-	this.country_choice = country ;
-	if ( this.country_choice != this.country & this.country_choice != 'All' ) {
-	    this.country_selected = false ;
-	} else {
-	    this.country_selected = true ;
-	}
-	this.filter_networks();
-    }
-    band_changed(band) {
-	this.band_choice = band ;
-	if ( !this.bands.includes(this.band_choice) & this.band_choice != 'All' ) {
-	    this.band_selected = false ;
-	} else {
-	    this.band_selected = true ;
-	}
-	this.filter_networks();
-    }
 
-    filter_networks() {
-	if ( this.band_selected & this.country_selected ) {
-	    this.hidden = false ;
-	} else {
-	    this.hidden = true ;
-	}
-    }
-    
-    // Define the HTML of your element
-    render() {
-	return html`
-      <style>
+    static get styles() {
+	return css`
         :host {
 	  width: 100%;
           line-height: 1.0 ;
@@ -411,19 +374,59 @@ class HyphabitNetworkTermination extends LitElement {
 	  font-size: 26px ;
 	}
       }
-      @media only screen and (max-width: 376px) {
-      }
       .hard-off { display: none }
-    </style>
 
+      .expand-more {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24' viewBox='0 0 24 24' width='24'%3E%3Cpath d='M0 0h24v24H0V0z' fill='none'/%3E%3Cpath d='M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14l-6-6z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-size: 100% ;
+      }
+      .expand-less {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24' viewBox='0 0 24 24' width='24'%3E%3Cpath d='M24 24H0V0h24v24z' fill='none' opacity='.87'/%3E%3Cpath d='M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6-1.41-1.41z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-size: 100% ;
+      }
+`;
+    }
+
+    country_changed( country ) {
+	this.country_choice = country ;
+	if ( this.country_choice != this.country & this.country_choice != 'All' ) {
+	    this.country_selected = false ;
+	} else {
+	    this.country_selected = true ;
+	}
+	this.filter_networks();
+    }
+    band_changed(band) {
+	this.band_choice = band ;
+	if ( !this.bands.includes(this.band_choice) & this.band_choice != 'All' ) {
+	    this.band_selected = false ;
+	} else {
+	    this.band_selected = true ;
+	}
+	this.filter_networks();
+    }
+
+    filter_networks() {
+	if ( this.band_selected & this.country_selected ) {
+	    this.hidden = false ;
+	} else {
+	    this.hidden = true ;
+	}
+    }
+    
+    // Define the HTML of your element
+    render() {
+	return html`
   <div class="container ${this.hidden ? 'hard-off' : ''}">
     <div class="row">
       <div class="icon grid-item-icon" style="background-color: ${this.shade}">${this.abbreviation}</div>
       <div class="mno grid-item-network">${this.network}</div>
       <div class="closure-date grid-item-date">${this.date}</div>
       <div class="expand-button grid-open material-icon" @click=${(e) => {this.expandNetworkBlock(e)}}>
-	<span class="material-icons ${this.closed ? '' : 'hidden'}">expand_more</span>
-	<span class="material-icons ${this.closed ? 'hidden' : ''}">expand_less</span>
+	<div class="expand-more ${this.closed ? '' : 'hidden'}">&nbsp;</div>
+	<div class="expand-less ${this.closed ? 'hidden' : ''}">&nbsp;</div>
       </div>
     </div>
     <div class="dividing-row ${this.closed ? '' : 'hidden'}"></div>
@@ -432,7 +435,7 @@ class HyphabitNetworkTermination extends LitElement {
 	<div class="country">${this.country}</div>
     </div>
   </div>
-`;
+` ;
     }
 
 
