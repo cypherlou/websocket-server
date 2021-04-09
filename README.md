@@ -1,8 +1,7 @@
-# websocket-server
+# Hyphabit Server
 Gunicorn/Flask Websocket Server
 
 ## Install
-Optional virtual environment.
 `virtualenv -p $(which python3) env; source env/bin/activate`
 
 Install libraries.
