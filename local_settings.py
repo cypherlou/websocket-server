@@ -25,7 +25,7 @@ env = {
     "REDIS_PORT": 6379,
     "REDIS_DB": 3,
     # Websocket Server
-    "SOCKETIO_CORS_ALLOWED_ORIGINS": "https://dev.hyphabit.io, https://api-dev.hyphabit.io, https://hyphabit.io",
+    "SOCKETIO_CORS_ALLOWED_ORIGINS": "https://dev.hyphabit.io, https://hyphabit.io",
     "SOCKETIO_ENGINEIO_LOGGER": False,
     # Misc
     "MIME_MAPPING": {
