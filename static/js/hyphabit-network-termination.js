@@ -22,7 +22,9 @@ class HyphabitNetworkTerminationList extends LitElement {
 	this.countries = {}
 	this.country_selector = "All" ;
 	this.band_selector = "All" ;
-	this.generation = "" ;
+	this.generation = "2g" ;
+	this.start_colour = '#4fb3bf' ;
+	this.end_colour = '#005662';
     }
 
     construct_network_data( source ) {
@@ -406,6 +408,7 @@ class HyphabitNetworkTermination extends LitElement {
           width: 60px;
           height: 60px;
           line-height: 60px;
+	  font-size: 26px ;
 	}
       }
       @media only screen and (max-width: 376px) {
