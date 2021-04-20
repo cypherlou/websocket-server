@@ -14,3 +14,19 @@ repos:
     -   id: mypy
         args: [--no-strict-optional, --ignore-missing-imports, --warn-return-any]
         additional_dependencies: [tokenize-rt==3.2.0]
+-   repo: https://github.com/PyCQA/bandit
+    rev: '1.7.0'
+    hooks:
+    -   id: bandit
+        args: [--exclude, "tests/*"]
+        files: .py$
+-   repo: https://github.com/Yelp/detect-secrets
+    rev: v1.1.0
+    hooks:
+    -   id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: package.lock.json
+-   repo: https://github.com/jendrikseipp/vulture
+    rev: v2.3
+    hooks:
+    -   id: vulture
