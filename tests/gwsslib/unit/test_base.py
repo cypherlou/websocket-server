@@ -7,8 +7,8 @@ import pytest
     "modules",
     [
         [
-            "core: missing_command, stub",
-            "gsa: _Gsa__gsa_data, _Gsa__process_networks, colour_range, load_data, network_termination, networks",
+            "core: missing_command, random_numbers, random_string, stub, test",
+            "stuff: slinky",
         ]
     ],
 )

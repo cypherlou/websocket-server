@@ -2,31 +2,41 @@ import pprint
 import random
 import string
 
-class Core( object ):
 
-    def __init__( self, logger ):
+class Core(object):
+    def __init__(self, logger):
         self.log = logger
 
-    def test( self ):
-        print( "test called" )
-            
-    def missing_command( self, payload ):
-        self.log.warn( "payload missing 'request'." )
+    def test(self):
+        print("test called")
+
+    def missing_command(self, payload):
+        self.log.warning("payload missing 'request'.")
+        return {"reason": "request missing from payload - no command executed"}
+
+    def stub(self, payload):
+        self.log.info("running stub processing")
+        self.log.debug(pprint.pformat(payload))
+        return {"success": True}
+
+    def random_numbers(self, payload):
+        self.log.info(
+            "running random_numbers processing with payload of {}".format(payload)
+        )
         return {
-            'reason': 'request missing from payload - no command executed'
+            "numbers": "".join(
+                random.choice(string.digits)  # nosec
+                for _ in range(0, int(payload.get("length", "20")))
+            )
         }
 
-    def stub( self, payload ):
-        self.log.info( "running stub processing" )
-        self.log.debug( pprint.pformat( payload ) )
+    def random_string(self, payload):
+        self.log.info(
+            "running random_string processing with payload of {}".format(payload)
+        )
         return {
-            'success': True
+            "string": "".join(
+                random.choice(string.ascii_letters)  # nosec
+                for _ in range(0, int(payload.get("length", "20")))
+            )
         }
-
-    def random_numbers( self, payload ):
-        self.log.info( "running random_numbers processing with payload of {}".format( payload ) )
-        return { 'numbers': ''.join( random.choice( string.digits ) for _ in range( 0, int( payload.get( 'length', '20' ) ) ) ) }
-
-    def random_string( self, payload ):
-        self.log.info( "running random_string processing with payload of {}".format( payload ) )
-        return { 'string': ''.join( random.choice( string.ascii_letters ) for _ in range( 0, int( payload.get( 'length', '20' ) ) ) ) }
